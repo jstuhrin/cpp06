@@ -5,7 +5,7 @@ namespace
 {
   void traverseNum(const std::string& input, std::size_t& i)
   {
-    if (input[i] == '-' || input[i] == +)
+    if (input[i] == '-' || input[i] == '+')
     {
       ++i;
     }
@@ -25,7 +25,7 @@ namespace
 
   bool isFloat(const std::string& input)
   {
-    if (input.back() != 'f')
+    if (input[input.size() - 1] != 'f')
     {
       return false;
     }
@@ -76,9 +76,20 @@ namespace
 
 void ScalarConverter::convert(std::string input)
 {
-
-
-
-
-  std::cout << "char: " << c << "\nint: " << i << "\nfloat: " << f << "\ndouble: " << d << "\n";
+  if (isDouble(input))
+  {
+    std::cout << "double\n";
+  }
+  else if (isFloat(input))
+  {
+    std::cout << "float\n";
+  }
+  else if (isInt(input))
+  {
+    std::cout << "int\n";
+  }
+  else if (isChar(input))
+  {
+    std::cout << "char\n";
+  }
 }
