@@ -3,35 +3,50 @@
 
 namespace
 {
-  void traverseNum(const std::string& input, std::size_t& i)
+  bool isDisplayable(const std::string& input)
   {
-    if (input[i] == '-' || input[i] == '+')
+    for (std::size_t i = 0; i < input.size(); ++i)
     {
-      ++i;
+      if (!std::isprint(static_cast<unsigned char>(input[0])))
+      {
+        std::cout << "Input contains non-printable char\n";
+        return false;
+      }
     }
-    while (std::isdigit(input[i]))
-    {
-      ++i;
-    }
-    if (input[i] == '.')
-    {
-      ++i;
-    }
-    while (std::isdigit(input[i]))
-    {
-      ++i;
-    }
+    return true;
+  }
+
+  bool isChar(const std::string& input)
+  {
+    return input.size() == 1;
   }
 
   bool isFloat(const std::string& input)
   {
-    if (input[input.size() - 1] != 'f')
+    std::size_t i = 0;
+    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
     {
       return false;
     }
-    std::size_t i = 0;
-    traverseNum(input, i);
-    if (i != input.size() - 2)
+    ++i;
+    while (std::isdigit(static_cast<unsigned char>(input[i])))
+    {
+      ++i;
+    }
+    if (input[i++] != '.')
+    {
+      return false;
+    }
+    while (std::isdigit(static_cast<unsigned char>(input[i])))
+    {
+      ++i;
+    }
+    if (input[i] != 'f')
+    {
+      return false;
+    }
+
+    if (i != input.size() - 1)
     {
       return false;
     }
@@ -41,8 +56,24 @@ namespace
   bool isDouble(const std::string& input)
   {
     std::size_t i = 0;
-    traverseNum(input, i);
-    if (i != input.size() - 1)
+    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
+    {
+      return false;
+    }
+    ++i;
+    while (std::isdigit(static_cast<unsigned char>(input[i])))
+    {
+      ++i;
+    }
+    if (input[i++] != '.')
+    {
+      return false;
+    }
+    while (std::isdigit(static_cast<unsigned char>(input[i])))
+    {
+      ++i;
+    }
+    if (i != input.size())
     {
       return false;
     }
@@ -52,44 +83,70 @@ namespace
   bool isInt(const std::string& input)
   {
     std::size_t i = 0;
-    traverseNum(input, i);
-    if (i != input.size() - 1)
+    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
+    {
+      return false;
+    }
+    ++i;
+    while (std::isdigit(static_cast<unsigned char>(input[i])))
+    {
+      ++i;
+    }
+    if (i != input.size())
     {
       return false;
     }
     return true;
   }
 
-  bool isChar(const std::string& input)
+  void handleChar(const std::string& input, char& c, float& f, double& d, int& i)
   {
-    if (!isalpha(input[0]))
-    {
-      return false;
-    }
-    if (input.size() > 1)
-    {
-      return false;
-    }
-    return true;
+    c = input[i];
+    f = static_cast<float>(c);
+    d = static_cast<double>(c);
+    i = static_cast<int>(c);
+  }
+
+  void handleFloat(const std::string& input, char& c, float& f, double& d, int& i)
+  {
+    std::istringstream iss();
+    iss >> f;
+    c = static_cast<char>(f);
+    d = static_cast<double>(f);
+    i = static_cast<int>(f);
+  }
+
+  void handleDouble(const std::string& input, char& c, float& f, double& d, int& i)
+  {
+    std::istringstream iss;
+    iss >> d;
+    c = static_cast<char>(d);
+    f = static_cast<float>(d);
+    i = static_cast<int>(d);
+  }
+
+  void handleInteger(const std::string& input, char& c, float& f, double& d, int& i)
+  {
+    
   }
 }
 
 void ScalarConverter::convert(std::string input)
 {
-  if (isDouble(input))
+  if (input.empty())
   {
-    std::cout << "double\n";
+    std::cout << "Input is empty string\n";
+    return;
   }
-  else if (isFloat(input))
+  if (!isDisplayable(input))
   {
-    std::cout << "float\n";
+    return;
   }
-  else if (isInt(input))
-  {
-    std::cout << "int\n";
-  }
-  else if (isChar(input))
-  {
-    std::cout << "char\n";
-  }
+
+  char c;
+  float f;
+  double d;
+  int i;
+
+
 }
