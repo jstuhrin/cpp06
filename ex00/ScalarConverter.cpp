@@ -3,6 +3,60 @@
 
 namespace
 {
+  struct Data
+  {
+    char c;
+    float f;
+    double d;
+    int i;
+
+    bool cPossible;
+    bool fPossible;
+    bool dPossible;
+    bool iPossible;
+
+    std::string suffixFloat;
+    std::string suffixDouble;
+
+    Data(bool cPossible, bool fPossible, bool dPossible, bool iPossible, std::string suffixFloat)
+      : cPossible(cPossible)
+      , fPossible(fPossible)
+      , dPossible(dPossible)
+      , iPossible(iPossible)
+      , suffixFloat(suffixFloat)
+    {}
+  };
+
+  void print(const Data& data)
+  {
+    std::cout << std::setprecision(300);
+    std::cout << "char: ";
+    if (!data.cPossible)
+      std::cout << "impossible\n";
+    else if (std::isprint(static_cast<unsigned char>(data.c)))
+      std::cout << data.c << '\n';
+    else
+      std::cout << "Non displayable\n";
+
+    std::cout << "int: ";
+    if (data.iPossible)
+      std::cout << data.i << '\n';
+    else
+      std::cout << "impossible\n";
+    
+    std::cout << "float: ";
+    if (data.fPossible)
+      std::cout << data.f << data.suffixFloat << '\n';
+    else
+      std::cout << "impossible\n";
+    
+    std::cout << "double: ";
+    if (data.dPossible)
+      std::cout << data.d << data.suffixDouble << '\n';
+    else
+      std::cout << "impossible\n";
+  }
+
   bool isDisplayable(const std::string& input)
   {
     for (std::size_t i = 0; i < input.size(); ++i)
@@ -14,41 +68,6 @@ namespace
       }
     }
     return true;
-  }
-
-  bool handleSpecialValues(const std::string& input)
-  {
-    if (input == "nan")
-    {
-      std::cout << "char: impossible\nint: impossible\nfloat: nanf\ndouble: nan\n";
-      return true;
-    }
-    if (input == "+inf")
-    {
-      std::cout << "char: impossible\nint: impossible\nfloat: +inff\ndouble: +inf\n";
-      return true;
-    }
-    if (input == "-inf")
-    {
-      std::cout << "char: impossible\nint: impossible\nfloat: -inff\ndouble: -inf\n";
-      return true;
-    }
-    if (input == "nanf")
-    {
-      std::cout << "char: impossible\nint: impossible\nfloat: nanf\ndouble: nan\n";
-      return true;
-    }
-    if (input == "+inff")
-    {
-      std::cout << "char: impossible\nint: impossible\nfloat: +inff\ndouble: +inf\n";
-      return true;
-    }
-    if (input == "-inff")
-    {
-      std::cout << "char: impossible\nint: impossible\nfloat: -inff\ndouble: -inf\n";
-      return true;
-    }
-    return false;
   }
 
   bool isChar(const std::string& input)
@@ -134,47 +153,129 @@ namespace
     return true;
   }
 
-  void handleChar(const std::string& input, char& c, float& f, double& d, int& i)
+  void handleChar(const std::string& input, Data& data)
   {
-    c = input[0];
-    f = static_cast<float>(c);
-    d = static_cast<double>(c);
-    i = static_cast<int>(c);
+    data.cPossible = true;
+    data.fPossible = true;
+    data.dPossible = true;
+    data.iPossible = true;
+    data.c = input[0];
+    data.f = static_cast<float>(data.c);
+    data.d = static_cast<double>(data.c);
+    data.i = static_cast<int>(data.c);
+    data.suffixFloat = ".0f";
+    data.suffixDouble = ".0";
   }
 
-  void handleFloat(const std::string& input, char& c, float& f, double& d, int& i)
+  void handleFloat(const std::string& input, Data& data)
   {
-    std::istringstream iss;
-    iss.str(input);
-    iss >> f;
-    c = static_cast<char>(f);
-    d = static_cast<double>(f);
-    i = static_cast<int>(f);
+    std::istringstream iss(input);
+    iss >> data.f;
+    if (iss.fail())
+    {
+      return;
+    }
+    data.cPossible = true;
+    data.fPossible = true;
+    data.dPossible = true;
+    data.iPossible = true;
+    data.c = static_cast<char>(data.f);
+    data.d = static_cast<double>(data.f);
+    data.i = static_cast<int>(data.f);
+
+    if (!input.compare(input.size() - 3, 3, ".0f"))
+    {
+      data.suffixFloat = ".0f";
+      data.suffixDouble = ".0";
+    }
   }
 
-  void handleDouble(const std::string& input, char& c, float& f, double& d, int& i)
+  void handleDouble(const std::string& input, Data& data)
   {
-    std::istringstream iss;
-    iss.str(input);
-    iss >> d;
-    c = static_cast<char>(d);
-    f = static_cast<float>(d);
-    i = static_cast<int>(d);
+    std::istringstream iss(input);
+    iss >> data.d;
+    if (iss.fail())
+    {
+      return;
+    }
+    data.dPossible = true;
+
+    if (data.d >= 0.0 && data.d <= 127.0)
+    {
+      data.cPossible = true;
+      data.c = static_cast<char>(data.i);
+    }
+
+    data.fPossible = true;
+    data.f = static_cast<float>(data.d);
+    
+    if (data.d >= std::numeric_limits<int>::min() && data.d <= std::numeric_limits<int>::max())
+    {
+      data.iPossible = true;
+      data.i = static_cast<int>(data.d);
+    }
+
+    if (!input.compare(input.size() - 2, 2, ".0"))
+    {
+      data.suffixFloat = ".0f";
+      data.suffixDouble = ".0";
+    }
   }
 
-  void handleInteger(const std::string& input, char& c, float& f, double& d, int& i)
+  void handleInteger(const std::string& input, Data& data)
   {
-    std::istringstream iss;
-    iss.str(input);
-    iss >> i;
-    c = static_cast<char>(i);
-    f = static_cast<float>(i);
-    d = static_cast<double>(i);
+    std::istringstream iss(input);
+    iss >> data.i;
+    if (iss.fail())
+    {
+      return;
+    }
+    data.iPossible = true;
+
+    if (data.i >= 0 && data.i <= 127)
+    {
+      data.cPossible = true;
+      data.c = static_cast<char>(data.i);
+    }
+
+    data.fPossible = true;
+    data.f = static_cast<float>(data.i);
+    data.suffixFloat = ".0f";
+
+    data.dPossible = true;
+    data.d = static_cast<double>(data.i);
+    data.suffixDouble = ".0";
   }
 
-  void print(const char& c, const float& f, const double& d, const int& i)
+  void handleSpecialValues(const std::string& input, Data& data)
   {
-    std::cout << "char: " << c << "\nint: " << i << "\nfloat: " << f << "f\ndouble: " << d << "\n";
+    if (input == "nan" || input == "nanf")
+    {
+      data.cPossible = false;
+      data.iPossible = false;
+      data.fPossible = true;
+      data.dPossible = true;
+      data.f = std::numeric_limits<float>::quiet_NaN();
+      data.d = std::numeric_limits<double>::quiet_NaN();
+    }
+    if (input == "+inf" || input == "+inff")
+    {
+      data.cPossible = false;
+      data.iPossible = false;
+      data.fPossible = true;
+      data.dPossible = true;
+      data.f = std::numeric_limits<float>::infinity();
+      data.d = std::numeric_limits<double>::infinity();
+    }
+    if (input == "-inf" || input == "-inff")
+    {
+      data.cPossible = false;
+      data.iPossible = false;
+      data.fPossible = true;
+      data.dPossible = true;
+      data.f = -std::numeric_limits<float>::infinity();
+      data.d = -std::numeric_limits<double>::infinity();
+    }
   }
 }
 
@@ -187,24 +288,21 @@ int ScalarConverter::convert(std::string input)
   }
   if (!isDisplayable(input))
     return 1;
-  if (handleSpecialValues(input))
-    return 0;
 
-  char c;
-  float f;
-  double d;
-  int i;
+  Data data(false, false, false, false, "f");
 
   if (isChar(input))
-    handleChar(input, c, f, d, i);
+    handleChar(input, data);
   else if (isFloat(input))
-    handleFloat(input, c, f, d, i);
+    handleFloat(input, data);
   else if (isDouble(input))
-    handleDouble(input, c, f, d, i);
+    handleDouble(input, data);
   else if (isInt(input))
-    handleInteger(input, c, f, d, i);
+    handleInteger(input, data);
+  else
+    handleSpecialValues(input, data);
 
-  print(c, f, d, i);
+  print(data);
 
   return 0;
 }
