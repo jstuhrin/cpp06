@@ -23,7 +23,6 @@ namespace
       , fPossible(false)
       , dPossible(false)
       , iPossible(false)
-      , suffixFloat("f")
     {}
   };
 
@@ -34,7 +33,7 @@ namespace
     if (!data.cPossible)
       std::cout << "impossible\n";
     else if (std::isprint(static_cast<unsigned char>(data.c)))
-      std::cout << data.c << '\n';
+      std::cout << "'" << data.c << "'\n";
     else
       std::cout << "Non displayable\n";
 
@@ -72,6 +71,8 @@ namespace
 
   void setSuffix(const std::string& input, Data& data)
   {
+    data.suffixFloat = "f";
+
     if (!input.compare(input.size() - 3, 3, ".0f") || !input.compare(input.size() - 2, 2, ".0"))
     {
       data.suffixFloat = ".0f";
@@ -298,6 +299,7 @@ namespace
       data.f = -std::numeric_limits<float>::infinity();
       data.d = -std::numeric_limits<double>::infinity();
     }
+    data.suffixFloat = "f";
   }
 }
 
