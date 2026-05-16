@@ -29,7 +29,7 @@ namespace
 
   void print(const Data& data)
   {
-    std::cout << std::setprecision(300);
+    std::cout << std::setprecision(309);
     std::cout << "char: ";
     if (!data.cPossible)
       std::cout << "impossible\n";
@@ -68,6 +68,25 @@ namespace
       }
     }
     return true;
+  }
+
+  void setSuffix(const std::string& input, Data& data)
+  {
+    if (!input.compare(input.size() - 3, 3, ".0f") || !input.compare(input.size() - 2, 2, ".0"))
+    {
+      data.suffixFloat = ".0f";
+      data.suffixDouble = ".0";
+    }
+
+    if (data.f == -std::numeric_limits<float>::infinity() || data.f == std::numeric_limits<float>::infinity())
+    {
+      data.suffixFloat = "f";
+    }
+
+    if (data.d == -std::numeric_limits<double>::infinity() || data.d == std::numeric_limits<double>::infinity())
+    {
+      data.suffixDouble = "";
+    }
   }
 
   bool isChar(const std::string& input)
@@ -173,21 +192,27 @@ namespace
     iss >> data.f;
     if (iss.fail())
     {
-      return;
+      bool isNegative = input[0] == '-' ? true : false;
+      data.f = isNegative ? -std::numeric_limits<float>::infinity() : std::numeric_limits<float>::infinity();
     }
-    data.cPossible = true;
     data.fPossible = true;
-    data.dPossible = true;
-    data.iPossible = true;
-    data.c = static_cast<char>(data.f);
-    data.d = static_cast<double>(data.f);
-    data.i = static_cast<int>(data.f);
 
-    if (!input.compare(input.size() - 3, 3, ".0f"))
+    if (data.f >= std::numeric_limits<char>::min() && data.f <= std::numeric_limits<char>::max())
     {
-      data.suffixFloat = ".0f";
-      data.suffixDouble = ".0";
+      data.cPossible = true;
+      data.c = static_cast<char>(data.f);
     }
+
+    if (data.f >= std::numeric_limits<int>::min() && data.f <= std::numeric_limits<int>::max())
+    {
+      data.iPossible = true;
+      data.i = static_cast<int>(data.f);
+    }
+    
+    data.dPossible = true;
+    data.d = static_cast<double>(data.f);
+
+    setSuffix(input, data);
   }
 
   void handleDouble(const std::string& input, Data& data)
@@ -196,14 +221,15 @@ namespace
     iss >> data.d;
     if (iss.fail())
     {
-      return;
+      bool isNegative = input[0] == '-' ? true : false;
+      data.d = isNegative ? -std::numeric_limits<double>::infinity() : std::numeric_limits<double>::infinity();
     }
     data.dPossible = true;
 
-    if (data.d >= 0.0 && data.d <= 127.0)
+    if (data.d >= std::numeric_limits<char>::min() && data.d <= std::numeric_limits<char>::max())
     {
       data.cPossible = true;
-      data.c = static_cast<char>(data.i);
+      data.c = static_cast<char>(data.d);
     }
 
     data.fPossible = true;
@@ -215,11 +241,7 @@ namespace
       data.i = static_cast<int>(data.d);
     }
 
-    if (!input.compare(input.size() - 2, 2, ".0"))
-    {
-      data.suffixFloat = ".0f";
-      data.suffixDouble = ".0";
-    }
+    setSuffix(input, data);
   }
 
   void handleInteger(const std::string& input, Data& data)
@@ -232,7 +254,7 @@ namespace
     }
     data.iPossible = true;
 
-    if (data.i >= 0 && data.i <= 127)
+    if (data.i >= std::numeric_limits<char>::min() && data.i <= std::numeric_limits<char>::max())
     {
       data.cPossible = true;
       data.c = static_cast<char>(data.i);
@@ -258,7 +280,7 @@ namespace
       data.f = std::numeric_limits<float>::quiet_NaN();
       data.d = std::numeric_limits<double>::quiet_NaN();
     }
-    if (input == "+inf" || input == "+inff")
+    if (input == "+inf" || input == "+inff" || input == "inf" || input == "inff")
     {
       data.cPossible = false;
       data.iPossible = false;
