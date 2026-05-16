@@ -18,12 +18,12 @@ namespace
     std::string suffixFloat;
     std::string suffixDouble;
 
-    Data(bool cPossible, bool fPossible, bool dPossible, bool iPossible, std::string suffixFloat)
-      : cPossible(cPossible)
-      , fPossible(fPossible)
-      , dPossible(dPossible)
-      , iPossible(iPossible)
-      , suffixFloat(suffixFloat)
+    Data()
+      : cPossible(false)
+      , fPossible(false)
+      , dPossible(false)
+      , iPossible(false)
+      , suffixFloat("f")
     {}
   };
 
@@ -289,7 +289,7 @@ int ScalarConverter::convert(std::string input)
   if (!isDisplayable(input))
     return 1;
 
-  Data data(false, false, false, false, "f");
+  Data data;
 
   if (isChar(input))
     handleChar(input, data);
