@@ -16,9 +16,44 @@ namespace
     return true;
   }
 
+  bool handleSpecialValues(const std::string& input)
+  {
+    if (input == "nan")
+    {
+      std::cout << "char: impossible\nint: impossible\nfloat: nanf\ndouble: nan\n";
+      return true;
+    }
+    if (input == "+inf")
+    {
+      std::cout << "char: impossible\nint: impossible\nfloat: +inff\ndouble: +inf\n";
+      return true;
+    }
+    if (input == "-inf")
+    {
+      std::cout << "char: impossible\nint: impossible\nfloat: -inff\ndouble: -inf\n";
+      return true;
+    }
+    if (input == "nanf")
+    {
+      std::cout << "char: impossible\nint: impossible\nfloat: nanf\ndouble: nan\n";
+      return true;
+    }
+    if (input == "+inff")
+    {
+      std::cout << "char: impossible\nint: impossible\nfloat: +inff\ndouble: +inf\n";
+      return true;
+    }
+    if (input == "-inff")
+    {
+      std::cout << "char: impossible\nint: impossible\nfloat: -inff\ndouble: -inf\n";
+      return true;
+    }
+    return false;
+  }
+
   bool isChar(const std::string& input)
   {
-    return input.size() == 1;
+    return input.size() == 1 && !std::isdigit(static_cast<unsigned char>(input[0]));
   }
 
   bool isFloat(const std::string& input)
@@ -101,7 +136,7 @@ namespace
 
   void handleChar(const std::string& input, char& c, float& f, double& d, int& i)
   {
-    c = input[i];
+    c = input[0];
     f = static_cast<float>(c);
     d = static_cast<double>(c);
     i = static_cast<int>(c);
@@ -109,7 +144,8 @@ namespace
 
   void handleFloat(const std::string& input, char& c, float& f, double& d, int& i)
   {
-    std::istringstream iss();
+    std::istringstream iss;
+    iss.str(input);
     iss >> f;
     c = static_cast<char>(f);
     d = static_cast<double>(f);
@@ -119,6 +155,7 @@ namespace
   void handleDouble(const std::string& input, char& c, float& f, double& d, int& i)
   {
     std::istringstream iss;
+    iss.str(input);
     iss >> d;
     c = static_cast<char>(d);
     f = static_cast<float>(d);
@@ -127,26 +164,47 @@ namespace
 
   void handleInteger(const std::string& input, char& c, float& f, double& d, int& i)
   {
-    
+    std::istringstream iss;
+    iss.str(input);
+    iss >> i;
+    c = static_cast<char>(i);
+    f = static_cast<float>(i);
+    d = static_cast<double>(i);
+  }
+
+  void print(const char& c, const float& f, const double& d, const int& i)
+  {
+    std::cout << "char: " << c << "\nint: " << i << "\nfloat: " << f << "f\ndouble: " << d << "\n";
   }
 }
 
-void ScalarConverter::convert(std::string input)
+int ScalarConverter::convert(std::string input)
 {
   if (input.empty())
   {
     std::cout << "Input is empty string\n";
-    return;
+    return 1;
   }
   if (!isDisplayable(input))
-  {
-    return;
-  }
+    return 1;
+  if (handleSpecialValues(input))
+    return 0;
 
   char c;
   float f;
   double d;
   int i;
 
+  if (isChar(input))
+    handleChar(input, c, f, d, i);
+  else if (isFloat(input))
+    handleFloat(input, c, f, d, i);
+  else if (isDouble(input))
+    handleDouble(input, c, f, d, i);
+  else if (isInt(input))
+    handleInteger(input, c, f, d, i);
 
+  print(c, f, d, i);
+
+  return 0;
 }

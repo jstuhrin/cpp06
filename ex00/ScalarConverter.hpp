@@ -4,11 +4,12 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 class ScalarConverter
 {
   public:
-    static void convert(std::string input);
+    static int convert(std::string input);
   private:
     ScalarConverter(); // declared private, and not implemented - this makes it impossible to instantiate the class
 };
