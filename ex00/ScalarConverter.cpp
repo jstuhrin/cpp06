@@ -69,13 +69,25 @@ namespace
     return true;
   }
 
-  void setSuffix(const std::string& input, Data& data)
+  void setSuffix(Data& data)
   {
     data.suffixFloat = "f";
 
-    if (!input.compare(input.size() - 3, 3, ".0f") || !input.compare(input.size() - 2, 2, ".0"))
+    std::stringstream ss;
+    ss << data.f;
+    std::string floatStr = ss.str();
+    std::string::size_type posDot = floatStr.find('.');
+    if (posDot == std::string::npos)
     {
       data.suffixFloat = ".0f";
+    }
+
+    ss.clear();
+    ss << data.d;
+    std::string doubleStr = ss.str();
+    posDot = doubleStr.find('.');
+    if (posDot == std::string::npos)
+    {
       data.suffixDouble = ".0";
     }
 
@@ -90,6 +102,18 @@ namespace
     }
   }
 
+  bool isAllDigits(const std::string& input, std::size_t start, std::size_t end)
+  {
+    for (std::size_t i = start; i < end; ++i)
+    {
+      if (!std::isdigit(static_cast<unsigned char>(input[i])))
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
   bool isChar(const std::string& input)
   {
     return input.size() == 1 && !std::isdigit(static_cast<unsigned char>(input[0]));
@@ -97,30 +121,28 @@ namespace
 
   bool isFloat(const std::string& input)
   {
-    std::size_t i = 0;
-    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
+    if (input.size() < 4)
     {
       return false;
     }
-    ++i;
-    while (std::isdigit(static_cast<unsigned char>(input[i])))
-    {
-      ++i;
-    }
-    if (input[i++] != '.')
+    if (input[0] != '-' && input[0] != '+' && !std::isdigit(static_cast<unsigned char>(input[0])))
     {
       return false;
     }
-    while (std::isdigit(static_cast<unsigned char>(input[i])))
-    {
-      ++i;
-    }
-    if (input[i] != 'f')
+    if (input[input.size() - 1] != 'f')
     {
       return false;
     }
-
-    if (i != input.size() - 1)
+    std::string::size_type posDot = input.find('.');
+    if (posDot == std::string::npos)
+    {
+      return false;
+    }
+    if (!isAllDigits(input, 1, posDot))
+    {
+      return false;
+    }
+    if (!isAllDigits(input, posDot + 1, input.size() - 1))
     {
       return false;
     }
@@ -129,25 +151,24 @@ namespace
 
   bool isDouble(const std::string& input)
   {
-    std::size_t i = 0;
-    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
+    if (input.size() < 3)
     {
       return false;
     }
-    ++i;
-    while (std::isdigit(static_cast<unsigned char>(input[i])))
-    {
-      ++i;
-    }
-    if (input[i++] != '.')
+    if (input[0] != '-' && input[0] != '+' && !std::isdigit(static_cast<unsigned char>(input[0])))
     {
       return false;
     }
-    while (std::isdigit(static_cast<unsigned char>(input[i])))
+    std::string::size_type posDot = input.find('.');
+    if (posDot == std::string::npos)
     {
-      ++i;
+      return false;
     }
-    if (i != input.size())
+    if (!isAllDigits(input, 1, posDot))
+    {
+      return false;
+    }
+    if (!isAllDigits(input, posDot + 1, input.size()))
     {
       return false;
     }
@@ -156,17 +177,11 @@ namespace
 
   bool isInt(const std::string& input)
   {
-    std::size_t i = 0;
-    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
+    if (input[0] != '-' && input[0] != '+' && !std::isdigit(static_cast<unsigned char>(input[0])))
     {
       return false;
     }
-    ++i;
-    while (std::isdigit(static_cast<unsigned char>(input[i])))
-    {
-      ++i;
-    }
-    if (i != input.size())
+    if (!isAllDigits(input, 1, input.size()))
     {
       return false;
     }
@@ -213,7 +228,7 @@ namespace
     data.dPossible = true;
     data.d = static_cast<double>(data.f);
 
-    setSuffix(input, data);
+    setSuffix(data);
   }
 
   void handleDouble(const std::string& input, Data& data)
@@ -242,7 +257,7 @@ namespace
       data.i = static_cast<int>(data.d);
     }
 
-    setSuffix(input, data);
+    setSuffix(data);
   }
 
   void handleInteger(const std::string& input, Data& data)
