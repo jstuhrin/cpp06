@@ -3,10 +3,10 @@
 
 struct Data
 {
-  const char c;
-  const int i;
-  const float f;
-  const double d;
+  char c;
+  int i;
+  float f;
+  double d;
   Data() : c('a'), i(97), f(97.0f), d(97.0) {}
 };
 
