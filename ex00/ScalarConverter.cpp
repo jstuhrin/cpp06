@@ -71,13 +71,16 @@ namespace
 
   void setSuffix(Data& data)
   {
-    data.suffixFloat = "f";
-
     std::stringstream ss;
     ss << data.f;
     std::string floatStr = ss.str();
     std::string::size_type posDot = floatStr.find('.');
-    if (posDot == std::string::npos)
+    std::string::size_type posE = floatStr.find('e');
+    if (posE == std::string::npos)
+    {
+      data.suffixFloat = "f";
+    }
+    if (posDot == std::string::npos && posE == std::string::npos)
     {
       data.suffixFloat = ".0f";
     }
@@ -86,7 +89,8 @@ namespace
     ss << data.d;
     std::string doubleStr = ss.str();
     posDot = doubleStr.find('.');
-    if (posDot == std::string::npos)
+    posE = doubleStr.find('e');
+    if (posDot == std::string::npos && posE == std::string::npos)
     {
       data.suffixDouble = ".0";
     }
