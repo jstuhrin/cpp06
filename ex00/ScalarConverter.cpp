@@ -104,6 +104,10 @@ namespace
 
   bool isAllDigits(const std::string& input, std::size_t start, std::size_t end)
   {
+    if (end <= start)
+    {
+      return false;
+    }
     for (std::size_t i = start; i < end; ++i)
     {
       if (!std::isdigit(static_cast<unsigned char>(input[i])))
@@ -287,6 +291,7 @@ namespace
 
   void handleSpecialValues(const std::string& input, Data& data)
   {
+    data.suffixFloat = "f";
     if (input == "nan" || input == "nanf")
     {
       data.cPossible = false;
@@ -295,6 +300,7 @@ namespace
       data.dPossible = true;
       data.f = std::numeric_limits<float>::quiet_NaN();
       data.d = std::numeric_limits<double>::quiet_NaN();
+      return;
     }
     if (input == "+inf" || input == "+inff" || input == "inf" || input == "inff")
     {
@@ -304,6 +310,7 @@ namespace
       data.dPossible = true;
       data.f = std::numeric_limits<float>::infinity();
       data.d = std::numeric_limits<double>::infinity();
+      return;
     }
     if (input == "-inf" || input == "-inff")
     {
@@ -314,7 +321,6 @@ namespace
       data.f = -std::numeric_limits<float>::infinity();
       data.d = -std::numeric_limits<double>::infinity();
     }
-    data.suffixFloat = "f";
   }
 }
 
