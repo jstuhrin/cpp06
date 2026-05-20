@@ -129,24 +129,29 @@ namespace
     {
       return false;
     }
-    if (input[0] != '-' && input[0] != '+' && !std::isdigit(static_cast<unsigned char>(input[0])))
+    std::size_t i = 0;
+    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
     {
       return false;
     }
-    if (input[input.size() - 1] != 'f')
+    if (input[i] == '-' || input[i] == '+')
     {
-      return false;
+      ++i;
     }
     std::string::size_type posDot = input.find('.');
     if (posDot == std::string::npos)
     {
       return false;
     }
-    if (!isAllDigits(input, 1, posDot))
+    if (!isAllDigits(input, i, posDot))
     {
       return false;
     }
     if (!isAllDigits(input, posDot + 1, input.size() - 1))
+    {
+      return false;
+    }
+    if (input[input.size() - 1] != 'f')
     {
       return false;
     }
@@ -159,16 +164,21 @@ namespace
     {
       return false;
     }
-    if (input[0] != '-' && input[0] != '+' && !std::isdigit(static_cast<unsigned char>(input[0])))
+    std::size_t i = 0;
+    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
     {
       return false;
+    }
+    if (input[i] == '-' || input[i] == '+')
+    {
+      ++i;
     }
     std::string::size_type posDot = input.find('.');
     if (posDot == std::string::npos)
     {
       return false;
     }
-    if (!isAllDigits(input, 1, posDot))
+    if (!isAllDigits(input, i, posDot))
     {
       return false;
     }
@@ -181,11 +191,16 @@ namespace
 
   bool isInt(const std::string& input)
   {
-    if (input[0] != '-' && input[0] != '+' && !std::isdigit(static_cast<unsigned char>(input[0])))
+    std::size_t i = 0;
+    if (input[i] != '-' && input[i] != '+' && !std::isdigit(static_cast<unsigned char>(input[i])))
     {
       return false;
     }
-    if (!isAllDigits(input, 1, input.size()))
+    if (input[i] == '-' || input[i] == '+')
+    {
+      ++i;
+    }
+    if (!isAllDigits(input, i, input.size()))
     {
       return false;
     }
