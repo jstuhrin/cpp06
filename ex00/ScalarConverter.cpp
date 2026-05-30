@@ -1,4 +1,9 @@
 
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <limits>
+
 #include "ScalarConverter.hpp"
 
 namespace
@@ -310,36 +315,31 @@ namespace
 
   void handleSpecialValues(const std::string& input, Data& data)
   {
+    data.cPossible = false;
+    data.iPossible = false;
+    data.fPossible = true;
+    data.dPossible = true;
     data.suffixFloat = "f";
     if (input == "nan" || input == "nanf")
     {
-      data.cPossible = false;
-      data.iPossible = false;
-      data.fPossible = true;
-      data.dPossible = true;
       data.f = std::numeric_limits<float>::quiet_NaN();
       data.d = std::numeric_limits<double>::quiet_NaN();
       return;
     }
     if (input == "+inf" || input == "+inff" || input == "inf" || input == "inff")
     {
-      data.cPossible = false;
-      data.iPossible = false;
-      data.fPossible = true;
-      data.dPossible = true;
       data.f = std::numeric_limits<float>::infinity();
       data.d = std::numeric_limits<double>::infinity();
       return;
     }
     if (input == "-inf" || input == "-inff")
     {
-      data.cPossible = false;
-      data.iPossible = false;
-      data.fPossible = true;
-      data.dPossible = true;
       data.f = -std::numeric_limits<float>::infinity();
       data.d = -std::numeric_limits<double>::infinity();
+      return;
     }
+    data.fPossible = false;
+    data.dPossible = false;
   }
 }
 
